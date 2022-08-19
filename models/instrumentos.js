@@ -22,6 +22,11 @@ const storeSchema = new Schema({
     precio:{
         type:Number,
         required:true
+    },
+    condicion:{
+        type:String,
+        required:true,
+        unique:true
     }
 })
 

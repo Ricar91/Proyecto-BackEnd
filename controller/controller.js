@@ -36,6 +36,31 @@ const controllers = {
         res.status(400).json({msg:'error con el id', error})
     }
     },
+
+    editarItem: async (req, res) => {
+        try {
+            const error = validationResult(req);
+            if (error.isEmpty()) {
+                const {id} = req.params
+    
+            const update = await Item.findByIdAndUpdate(id, req.body)
+            res.status(202).json({update, msg:"se actualizó el item"})
+            } else {
+            res.status(501).json(error)
+            }    
+        } catch (error) {
+            res.status(501).json({msg: "Este item ya existe en la base de datos", err})
+        }
+    },
+
+    eliminarItem: async (req, res) => {
+        try {
+            const item = await Item.findByIdAndDelete(req.params.id)
+            res.json({msg:"Eliminado", item})
+        } catch (error) {
+            res.status(400).json({msg:'Problemas a la hora de borrar la información'})
+        }
+    },
 }
 
 

@@ -1,10 +1,14 @@
 const {check} = require('express-validator');
 
 const check = [
-    check("tipo").not().isEmpty().withMessage("El campo esta vacio"),
-    check("marca").not().isEmpty().withMessage("El campo esta vacio"),
-    check("modelo").not().isEmpty().withMessage("El campo esta vacio"),
-    check("color").not().isEmpty().withMessage("El campo esta vacio"),
-    check("precio").not().isEmpty().withMessage("El campo esta vacio"),
-    check("condicion").not().isEmpty().withMessage("El campo esta vacio"),
+    check("tipo").exists().not().isEmpty().withMessage("El campo esta vacio"),
+    check("marca").exists().not().isEmpty().withMessage("El campo esta vacio"),
+    check("modelo").exists().not().isEmpty().withMessage("El campo esta vacio"),
+    check("color").exists().not().isEmpty().withMessage("El campo esta vacio"),
+    check("precio").exists().not().isEmpty().withMessage("El campo esta vacio"),
+    check("condicion").exists().not().isEmpty().withMessage("El campo esta vacio"),
+    check("nombre").exists().not().isEmpty().withMessage("El campo esta vacio"),
+    check("apellido").exists().not().isEmpty().withMessage("El campo esta vacio"),
+    check("edad").exists().not().isEmpty().withMessage("El campo esta vacio"),
+    check("email").exists().not().isEmpty().withMessage("El campo esta vacio").isEmail(),
 ]

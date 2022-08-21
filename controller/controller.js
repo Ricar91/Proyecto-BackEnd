@@ -150,7 +150,78 @@ contrUser: (req, res) => {
     }
 },
 
-}
 
+//--------- Sesion --------------
+
+session: (req, res) => {
+    let usuario = {
+        email: "jorge654@gmail.com",
+        user: "jorge",
+        edad: "30",
+        idioma: "español",
+    }
+    res.cookie('sessionDelUsuario', usuario.idioma, {maxAge:60000}),
+    req.session.usuario = usuario,
+    res.json(req.session.usuario)
+},
+
+pruebaSession: (req, res) => {
+    console.log(req.session)
+    res.json(req.session.usuario)
+},
+
+cerrarSession: (req, res) => {
+    req.session.destroy();
+    res.json({msg: "sesión cerrada"})
+},
+
+//--------- Cookies --------------
+
+consultarCookie: (req, res) => {
+    res.json(req.cookies.sessionDelUsuario)
+},
+
+eliminarCookie: (req, res) => {
+    res.clearCookie('sessionDelUsuario')
+    res.json({msg: "se eliminó cookie"})
+},
+
+
+//--------- Login --------------
+
+loginUsuarios: async (req, res) => {
+    const persona = await User.findOne({email: req.body.email})
+    if (!persona) {
+        res.json({msg: "E-mail incorrecto"})
+    }
+    if (!bcrypt.compareSync(req.body.contraseña, persona.contraseña)) {
+        res.json({msg: "Contraseña incorrecta"})
+    }
+
+    const usuario = {
+        _id: persona._id,
+        name: persona.name,
+        idioma: persona.idioma,
+        role: persona.permiso || "USER"
+    }
+    req.session.user = usuario
+
+    // Checkbox
+
+    if (req.body.recordar) {
+        res.cookie('sessionDelUsuario', req.session.user, {maxAge:60000*60*24*125})
+    }
+    res.status(201).json({msg: "Usuario logueado"})
+},
+
+    // Delete
+
+logout: (req, res) => {
+    req.clearCookie('sessionDelUsuario'),
+    req.session.destroy(),
+    res.json({msg: "Sesión cerrada"})
+   }, 
+
+}
 
 module.exports = controllers

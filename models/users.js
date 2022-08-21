@@ -19,6 +19,11 @@ const storeSchema = new Schema({
         required:true,
         unique: true
     },
+    contraseña:{
+        type:String,
+        required:true,
+        unique: true
+    },
 })
 
 const User = mongoose.model('User', storeSchema)

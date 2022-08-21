@@ -1,6 +1,7 @@
 const {User} = require ("../models/users");
+
 const validarEdad = async (req, res, next) => {
-    const value = await User.findOne(req.params.body)
+    const value = await User.findOne(req.body.edad)
     if (value < 18 || value > 40) {
         next();
     } else {

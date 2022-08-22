@@ -1,7 +1,7 @@
 const {User} = require ("../models/users");
 
 const validarMail = async (req, res, next) => {
-    const user = await User.findUserByEmail(req.params.id)
+    const user = await User.findOne({email: req.body.email})
     if (user) {
         next();
     } else {

@@ -3,6 +3,9 @@ const {User} = require("../models/users")
 const {validationResult} = require('express-validator')
 const bcrypt = require('bcryptjs');
 const axios = require('axios');
+const generarJWT = require('../helpers/generadorJWT')
+const jwt = require('jsonwebtoken')
+require('dotenv').config();
 
 const controllers = {
     myIndex(req,res) {
@@ -15,15 +18,23 @@ crearUser: async (req, res) => {
     try {
         const error = validationResult(req)
         if (error.isEmpty()){
-
-            const user = new User(req.body);
+            let salt = bcrypt.genSaltSync(10);
+            let hash = bcrypt.hashSync(req.body.contraseña, salt);
+            let usuario = {
+                nombre: req.body.nombre,
+                apellido: req.body.apellido,
+                edad: req.body.edad,
+                email: req.body.email,
+                contraseña: hash
+            }
+            const user = new User(usuario);
             await user.save()
             res.status(201).json({user})
         } else {
             res.status(501).json(error)
         }    
     } catch (err) {
-        res.status(501).json({msg: "No se pudo guardar el usuario por favor intenta más tarde", err})
+        res.status(501).json({msg: "No se puede guardar el usuario por favor intenta más tarde", err})
     }
 },
 
@@ -65,20 +76,6 @@ try {
 } catch (error) {
     res.status(400).json({msg:'Problemas a la hora de borrar la información'})
 }
-},
-
-contrUser: (req, res) => {
-    let contraseña = "123456798";
-    let salt = bcrypt.genSaltSync(10);
-    let hash = bcrypt.hashSync(contraseña, salt);
-    let comparacion1 = bcrypt.compareSync('123456789', hash);
-    let comparacion2 = bcrypt.compareSync('sarasa', hash);
-    res.json({
-        contr: contraseña,
-        contr1: hash,
-        comparacion: comparacion1,
-        otraComparacion: comparacion2
-    });
 },
 
 //--------- Instrumentos --------------
@@ -191,6 +188,7 @@ eliminarCookie: (req, res) => {
 
 loginUsuarios: async (req, res) => {
     const persona = await User.findOne({email: req.body.email})
+
     if (!persona) {
         res.json({msg: "E-mail incorrecto"})
     }
@@ -200,8 +198,7 @@ loginUsuarios: async (req, res) => {
 
     const usuario = {
         _id: persona._id,
-        name: persona.name,
-        idioma: persona.idioma,
+        nombre: persona.nombre,
         role: persona.permiso || "USER"
     }
     req.session.user = usuario
@@ -212,15 +209,46 @@ loginUsuarios: async (req, res) => {
         res.cookie('sessionDelUsuario', req.session.user, {maxAge:60000*60*24*125})
     }
     res.status(201).json({msg: "Usuario logueado"})
-},
+    }, 
 
     // Delete
 
 logout: (req, res) => {
     req.clearCookie('sessionDelUsuario'),
     req.session.destroy(),
-    res.json({msg: "Sesión cerrada"})
+    res.json({msg:"Sesión cerrada"})
    }, 
+
+//--------- Token login --------------
+
+login: async (req, res) => {
+    const error = validationResult(req)
+    if (error.isEmpty()) {
+        const person = await User.findOne({email: req.body.email})
+        console.log(person)
+        if (person == null) {
+            res.json({msg: "E-mail incorrecto"})
+        }
+        if (!bcrypt.compareSync(req.body.contraseña, person.contraseña)) {
+            res.json({msg: "Contraseña incorrecta"})
+        }
+        const token = await generarJWT ({ id:person._id, name: person.name, role: "ADMIN"})
+        res.status(201).json({email: req.body.email, token})
+    }
+},
+
+user: (req, res) => {
+    try {
+        const token = req.header('x-token');
+        console.log(req.headers)
+        const verify = jwt.verify(token, process.env.SECRET_TOKEN);
+        res.status(200).json({
+            msg: "acceso permitido",
+            verify})
+    } catch (error) {
+        res.status(500).json({error})
+    }
+},
 
 }
 

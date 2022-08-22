@@ -25,3 +25,6 @@ mongodb+srv://rrinaldi:091218@cluster0.qgf5r.mongodb.net/test
 
 Contraseña sesion:
 esto-es-una-contraseña
+
+Contraseña token:
+esto-es-un-token

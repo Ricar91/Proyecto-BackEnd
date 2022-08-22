@@ -17,8 +17,8 @@ router.post('/crearuser', [
     check("contraseña").exists().not().isEmpty().withMessage("El campo esta vacio"),
 ], controllers.crearUser);
 router.get('/veruser', controllers.verUsers);
-router.get('/veruser/:id', validarUserId, validarEdad, controllers.verUnUser);
-router.put('/editaruser/:id',validarUserId, validarMail, controllers.editarUser);
+router.get('/veruser/:id', validarUserId, validarEdad, validarMail, controllers.verUnUser);
+router.put('/editaruser/:id',validarUserId, controllers.editarUser);
 router.delete("/eliminaruser/:id", validarUserId, controllers.eliminarUser)
 router.get('/pokemon/:name', controllers.consultaAxios);
 router.get('/sesion', controllers.session);

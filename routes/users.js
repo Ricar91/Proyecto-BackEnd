@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 const controllers = require("../controller/controller")
 const { validarUserId } = require('../middleware/validarUserId');
-const { validarEdad } = require('../middleware/validarEdad');
+// const { validarEdad } = require('../middleware/validarEdad');
 const { validarMail } = require('../middleware/validarMail');
 const {check} = require('express-validator');
 const auth = require('../middleware/auth');
@@ -12,12 +12,18 @@ const validarJWT = require('../middleware/validarToken');
 router.post('/crearuser', [
     check("nombre").exists().not().isEmpty().withMessage("El campo esta vacio"),
     check("apellido").exists().not().isEmpty().withMessage("El campo esta vacio"),
-    check("edad").exists().not().isEmpty().withMessage("El campo esta vacio"),
+    check("edad").exists().not().isEmpty().withMessage("El campo esta vacio").custom
+    ((value) => {
+        if (value < 18) {
+            throw new Error("Debe ser mayor de 18 años")
+        } 
+        return true
+    }),
     check("email").exists().not().isEmpty().withMessage("El campo esta vacio").isEmail(),
     check("contraseña").exists().not().isEmpty().withMessage("El campo esta vacio"),
-], controllers.crearUser);
+], validarMail, controllers.crearUser);
 router.get('/veruser', controllers.verUsers);
-router.get('/veruser/:id', validarUserId, validarEdad, validarMail, controllers.verUnUser);
+router.get('/veruser/:id', validarUserId, controllers.verUnUser);
 router.put('/editaruser/:id',validarUserId, controllers.editarUser);
 router.delete("/eliminaruser/:id", validarUserId, controllers.eliminarUser)
 router.get('/pokemon/:name', controllers.consultaAxios);
